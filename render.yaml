@@ -1,0 +1,43 @@
+services:
+  - type: web
+    name: digital-ad-bird-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    region: oregon
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: PORT
+        value: 5000
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        fromDatabase:
+          name: mongodb
+          property: connectionString
+      - key: REDIS_URL
+        value: ${REDIS_URL}
+      - key: JWT_ACCESS_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        value: https://${FRONTEND_RENDER_URL}
+      - key: STRIPE_SECRET_KEY
+        sync: false
+
+  - type: web
+    name: digital-ad-bird-frontend
+    runtime: docker
+    dockerfilePath: ./frontend/Dockerfile
+    region: oregon
+    plan: free
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://${BACKEND_RENDER_URL}/api
+
+  - type: redis
+    name: digital-ad-bird-redis
+    region: oregon
+    plan: free
+    ipAllowList: []
